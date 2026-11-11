@@ -1,1 +1,27 @@
-<p>event-list works!</p>
+<h1>My Events</h1>
+
+<div class="search">
+  <mat-form-field appearance="outline">
+    <mat-label>Search by location</mat-label>
+    <input matInput #search (keyup.enter)="loadEvents(search.value)" />
+  </mat-form-field>
+  <button mat-flat-button (click)="loadEvents(search.value)">Search</button>
+  <button mat-button (click)="search.value = ''; loadEvents()">Clear</button>
+</div>
+
+@if (errorMessage()) {
+  <p class="error" role="alert">{{ errorMessage() }}</p>
+}
+
+@if (events$ | async; as events) {
+  @if (events.length === 0) {
+    <p>No events found.</p>
+  }
+  <div class="grid">
+    @for (event of events; track event._id) {
+      <app-event-card [event]="event" />
+    }
+  </div>
+} @else {
+  <p>Loading events...</p>
+}

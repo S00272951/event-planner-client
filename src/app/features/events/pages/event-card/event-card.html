@@ -1,1 +1,14 @@
-<p>event-card works!</p>
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>{{ event().title }}</mat-card-title>
+    <mat-card-subtitle>{{ event().date | date: 'mediumDate' }} · {{ event().location }}</mat-card-subtitle>
+  </mat-card-header>
+  @if (event().description) {
+    <mat-card-content>
+      <p>{{ event().description }}</p>
+    </mat-card-content>
+  }
+  <mat-card-actions>
+    <a mat-button [routerLink]="['/events', event()._id]">View details</a>
+  </mat-card-actions>
+</mat-card>
