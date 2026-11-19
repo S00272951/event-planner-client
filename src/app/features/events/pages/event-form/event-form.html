@@ -1,1 +1,60 @@
-<p>event-form works!</p>
+<form [formGroup]="eventForm" (ngSubmit)="onSubmit()" class="event-form">
+  @if (saving()) {
+    <mat-progress-bar mode="buffer" />
+  }
+
+  <h1>{{ id() ? 'Edit event' : 'Add event' }}</h1>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Title</mat-label>
+    <input matInput formControlName="title" placeholder="e.g. Sarah's Wedding" />
+    @if (eventForm.controls.title.hasError('required')) {
+      <mat-error>Title is required</mat-error>
+    } @else if (eventForm.controls.title.hasError('minlength')) {
+      <mat-error>Title must be at least 3 characters</mat-error>
+    } @else if (eventForm.controls.title.hasError('maxlength')) {
+      <mat-error>Title must be 100 characters or fewer</mat-error>
+    }
+    @if (eventForm.controls.title.hasError('blank')) {
+      <mat-error>Title cannot be only spaces</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Date</mat-label>
+    <input matInput type="date" formControlName="date" />
+    @if (eventForm.controls.date.hasError('required')) {
+      <mat-error>Date is required</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Location</mat-label>
+    <input matInput formControlName="location" placeholder="e.g. Sligo" />
+    @if (eventForm.controls.location.hasError('required')) {
+      <mat-error>Location is required</mat-error>
+    } @else if (eventForm.controls.location.hasError('maxlength')) {
+      <mat-error>Location must be 100 characters or fewer</mat-error>
+    }
+    @if (eventForm.controls.location.hasError('blank')) {
+      <mat-error>Location cannot be only spaces</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Description</mat-label>
+    <textarea matInput formControlName="description" rows="3"></textarea>
+    <mat-hint>Optional</mat-hint>
+    @if (eventForm.controls.description.hasError('maxlength')) {
+      <mat-error>Description must be 500 characters or fewer</mat-error>
+    }
+  </mat-form-field>
+
+  @if (saveError(); as message) { <p class="error" role="alert">{{ message }}</p> }
+  <div class="button-group">
+    <button matButton="filled" type="submit" [disabled]="saving()">
+      {{ saving() ? 'Saving...' : 'Save event' }}
+    </button>
+    <a matButton [routerLink]="id() ? ['/events', id()] : ['/events']">Cancel</a>
+  </div>
+</form>
