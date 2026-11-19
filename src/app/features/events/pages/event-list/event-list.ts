@@ -1,36 +1,35 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { AsyncPipe } from '@angular/common';
-import { Observable, catchError, of } from 'rxjs';
+import { Component, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { EventService } from '../../services/event.service';
 import { PlannerEvent } from '../../models/event.model';
 import { EventCard } from '../event-card/event-card';
+import { LoadState, withLoadState } from '../../../../shared/load-state';
 
 @Component({
   selector: 'app-event-list',
-  imports: [AsyncPipe, EventCard, MatFormFieldModule, MatInputModule, MatButtonModule],
+  imports: [EventCard, MatButtonModule, MatFormFieldModule, MatInputModule],
   templateUrl: './event-list.html',
   styleUrl: './event-list.scss',
 })
-export class EventList implements OnInit {
+export class EventList {
   private eventService = inject(EventService);
-  events$!: Observable<PlannerEvent[]>;
-  errorMessage = signal('');
 
-  ngOnInit(): void {
-    this.loadEvents();
-  }
+  readonly location = signal('');
+  readonly initial: LoadState<PlannerEvent[]> = { status: 'loading' };
 
-  // location is optional, an empty one gets all events
-  loadEvents(location = ''): void {
-    this.errorMessage.set('');
-    this.events$ = this.eventService.getEvents(location).pipe(
-      catchError(error => {
-        this.errorMessage.set(error.message);
-        return of([]);
-      })
-    );
+  // every time location changes, switchMap gets the events again
+  state = toSignal(
+    toObservable(this.location).pipe(
+      switchMap((location) => withLoadState(this.eventService.getEvents(location))),
+    ),
+    { initialValue: this.initial },
+  );
+
+  search(location: string): void {
+    this.location.set(location.trim());
   }
 }
