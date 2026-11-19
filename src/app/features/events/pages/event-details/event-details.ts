@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
@@ -6,6 +6,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { switchMap } from 'rxjs';
 import { PlannerEvent } from '../../models/event.model';
 import { EventService } from '../../services/event.service';
+import { Guest } from '../../../guests/models/guest.model';
+import { GuestService } from '../../../guests/services/guest.service';
 import { LoadState, withLoadState } from '../../../../shared/load-state';
 
 @Component({
@@ -14,8 +16,9 @@ import { LoadState, withLoadState } from '../../../../shared/load-state';
   templateUrl: './event-details.html',
   styleUrl: './event-details.scss',
 })
-export class EventDetails {
+export class EventDetails implements OnInit {
   private eventService = inject(EventService);
+  private guestService = inject(GuestService);
   private readonly router = inject(Router);
 
   readonly id = input.required<string>();
@@ -24,12 +27,36 @@ export class EventDetails {
   readonly deleting = signal(false);
   readonly deleteError = signal<string | null>(null);
 
+  // guests are kept in a signal so the list can be loaded again after a delete or a filter
+  readonly guestsState = signal<LoadState<Guest[]>>({ status: 'loading' });
+  readonly rsvpFilter = signal('');
+  readonly rsvpOptions = [
+    { value: '', label: 'All' },
+    { value: 'yes', label: 'Yes' },
+    { value: 'no', label: 'No' },
+    { value: 'pending', label: 'Pending' },
+  ];
+
   state = toSignal(
     toObservable(this.id).pipe(
       switchMap((id) => withLoadState(this.eventService.getEventById(id))),
     ),
     { initialValue: this.initial },
   );
+
+  ngOnInit(): void {
+    this.loadGuests();
+  }
+
+  loadGuests(): void {
+    withLoadState(this.guestService.getGuestsForEvent(this.id(), this.rsvpFilter()))
+      .subscribe((state) => this.guestsState.set(state));
+  }
+
+  filterGuests(rsvp: string): void {
+    this.rsvpFilter.set(rsvp);
+    this.loadGuests();
+  }
 
   deleteEvent(event: PlannerEvent): void {
     if (!confirm(`Delete ${event.title} and all of its guests?`)) return;
@@ -43,6 +70,17 @@ export class EventDetails {
         this.deleteError.set(err.message);
         this.deleting.set(false);
       },
+    });
+  }
+
+  deleteGuest(guest: Guest): void {
+    if (!confirm(`Remove ${guest.name} from the guest list?`)) return;
+
+    this.deleteError.set(null);
+
+    this.guestService.deleteGuest(guest._id).subscribe({
+      next: () => this.loadGuests(),
+      error: (err: Error) => this.deleteError.set(err.message),
     });
   }
 }
