@@ -1,1 +1,47 @@
-<p>guest-form works!</p>
+<form [formGroup]="guestForm" (ngSubmit)="onSubmit()" class="guest-form">
+  @if (saving()) {
+    <mat-progress-bar mode="buffer" />
+  }
+
+  <h1>{{ guestId() ? 'Edit guest' : 'Add guest' }}</h1>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Name</mat-label>
+    <input matInput formControlName="name" placeholder="e.g. John Murphy" />
+    @if (guestForm.controls.name.hasError('required')) {
+      <mat-error>Name is required</mat-error>
+    } @else if (guestForm.controls.name.hasError('maxlength')) {
+      <mat-error>Name must be 100 characters or fewer</mat-error>
+    }
+    @if (guestForm.controls.name.hasError('blank')) {
+      <mat-error>Name cannot be only spaces</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Email</mat-label>
+    <input matInput type="email" formControlName="email" placeholder="e.g. john@example.com" />
+    @if (guestForm.controls.email.hasError('required')) {
+      <mat-error>Email is required</mat-error>
+    } @else if (guestForm.controls.email.hasError('email')) {
+      <mat-error>Please enter a valid email</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>RSVP</mat-label>
+    <select matNativeControl formControlName="rsvp">
+      <option value="pending">Pending</option>
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+  </mat-form-field>
+
+  @if (saveError(); as message) { <p class="error" role="alert">{{ message }}</p> }
+  <div class="button-group">
+    <button matButton="filled" type="submit" [disabled]="saving()">
+      {{ saving() ? 'Saving...' : 'Save guest' }}
+    </button>
+    <a matButton [routerLink]="['/events', eventId()]">Cancel</a>
+  </div>
+</form>
