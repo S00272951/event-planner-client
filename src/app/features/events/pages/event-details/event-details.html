@@ -1,1 +1,25 @@
-<p>event-details works!</p>
+<a matButton routerLink="/events">← Back to events</a>
+
+@let s = state();
+@if (s.status === 'loading') {
+  <p>Loading event...</p>
+} @else if (s.status === 'error') {
+  <p class="error" role="alert">{{ s.message }}</p>
+} @else {
+  <h1>{{ s.data.title }}</h1>
+  <p class="meta">{{ s.data.date | date: 'fullDate' }} · {{ s.data.location }}</p>
+  @if (s.data.description) {
+    <p>{{ s.data.description }}</p>
+  }
+
+  <div class="actions">
+    <a matButton="filled" [routerLink]="['/events', s.data._id, 'edit']">Edit</a>
+    <button matButton="outlined" (click)="deleteEvent(s.data)" [disabled]="deleting()">
+      Delete
+    </button>
+  </div>
+
+  @if (deleteError(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
+}

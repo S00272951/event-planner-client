@@ -8,9 +8,12 @@ export class EventService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:3000/api/v1/events';
 
-  // location is optional, it adds ?location=Sligo to the url
+    // location is optional, it adds ?location=Sligo to the url
   getEvents(location = ''): Observable<PlannerEvent[]> {
-    const params = location ? { location } : {};
+    const params: Record<string, string> = {};
+    if (location) {
+      params['location'] = location;
+    }
     return this.http.get<PlannerEvent[]>(this.apiUrl, { params });
   }
 

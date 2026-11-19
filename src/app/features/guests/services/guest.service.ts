@@ -8,9 +8,12 @@ export class GuestService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:3000/api/v1';
 
-  // rsvp is optional, it adds ?rsvp=yes to the url
+    // rsvp is optional, it adds ?rsvp=yes to the url
   getGuestsForEvent(eventId: string, rsvp = ''): Observable<Guest[]> {
-    const params = rsvp ? { rsvp } : {};
+    const params: Record<string, string> = {};
+    if (rsvp) {
+      params['rsvp'] = rsvp;
+    }
     return this.http.get<Guest[]>(`${this.apiUrl}/events/${eventId}/guests`, { params });
   }
 
