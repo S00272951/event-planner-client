@@ -54,8 +54,10 @@
               <span>{{ guest.email }}</span>
             </div>
             <span class="rsvp rsvp-{{ guest.rsvp }}">{{ guest.rsvp }}</span>
-            <a matButton [routerLink]="['/events', id(), 'guests', guest._id, 'edit']">Edit</a>
-            <button matButton (click)="deleteGuest(guest)">Delete</button>
+            <div class="guest-actions">
+              <a matButton [routerLink]="['/events', id(), 'guests', guest._id, 'edit']">Edit</a>
+              <button matButton (click)="deleteGuest(guest)">Delete</button>
+            </div>
           </li>
         } @empty {
           <li>No guests yet.</li>

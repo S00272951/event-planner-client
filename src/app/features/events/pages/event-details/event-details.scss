@@ -40,6 +40,11 @@
   word-break: break-all;
 }
 
+.guest-actions {
+  display: flex;
+  gap: 4px;
+}
+
 .rsvp {
   padding: 2px 10px;
   border-radius: 12px;
