@@ -29,22 +29,13 @@
       <a matButton="filled" [routerLink]="['/events', s.data._id, 'guests', 'new']">+ Add guest</a>
     </div>
 
-    <div class="filters" role="group" aria-label="Filter guests by RSVP">
-      @for (option of rsvpOptions; track option.value) {
-        <button
-          [matButton]="rsvpFilter() === option.value ? 'filled' : 'outlined'"
-          [attr.aria-pressed]="rsvpFilter() === option.value"
-          (click)="filterGuests(option.value)">
-          {{ option.label }}
-        </button>
-      }
-    </div>
-
     @let g = guestsState();
     @if (g.status === 'loading') {
       <p>Loading guests...</p>
     } @else if (g.status === 'error') {
       <p class="error" role="alert">{{ g.message }}</p>
+    } @else if (g.data.length === 0) {
+      <p>No guests yet.</p>
     } @else {
       <ul class="guest-list">
         @for (guest of g.data; track guest._id) {
@@ -54,13 +45,8 @@
               <span>{{ guest.email }}</span>
             </div>
             <span class="rsvp rsvp-{{ guest.rsvp }}">{{ guest.rsvp }}</span>
-            <div class="guest-actions">
-              <a matButton [routerLink]="['/events', id(), 'guests', guest._id, 'edit']">Edit</a>
-              <button matButton (click)="deleteGuest(guest)">Delete</button>
-            </div>
+            <a matButton [routerLink]="['/events', id(), 'guests', guest._id, 'edit']">Edit</a>
           </li>
-        } @empty {
-          <li>No guests yet.</li>
         }
       </ul>
     }

@@ -1,21 +1,12 @@
 <h1>My Events</h1>
 
-<div class="search">
-  <mat-form-field appearance="outline">
-    <mat-label>Search by location</mat-label>
-    <input matInput #searchBox placeholder="e.g. Sligo" (keyup.enter)="search(searchBox.value)" />
-  </mat-form-field>
-  <button matButton="outlined" (click)="search(searchBox.value)">Search</button>
-  <button matButton (click)="searchBox.value = ''; search('')">Clear</button>
-</div>
-
 @let s = state();
 @if (s.status === 'loading') {
   <p>Loading events...</p>
 } @else if (s.status === 'error') {
   <p class="error" role="alert">{{ s.message }}</p>
 } @else if (s.data.length === 0) {
-  <p>No events found.</p>
+  <p>No events available at the moment.</p>
 } @else {
   <div class="grid">
     @for (event of s.data; track event._id) {

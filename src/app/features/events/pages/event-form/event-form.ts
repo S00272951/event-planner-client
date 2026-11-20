@@ -29,7 +29,7 @@ export class EventForm implements OnInit {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
 
-  readonly id = input<string>();  // only has a value when editing
+  readonly id = input<string>();  // note this is optional by default
 
   saving = signal(false);
   saveError = signal<string | null>(null);
@@ -61,12 +61,7 @@ export class EventForm implements OnInit {
     if (this.eventForm.invalid) return;
 
     const { title, date, location, description } = this.eventForm.getRawValue();
-    const event: CreateEventDto = {
-      title: title.trim(),
-      date,
-      location: location.trim(),
-      description: description.trim(),
-    };
+    const newEvent: CreateEventDto = { title, date, location, description };
 
     this.saving.set(true);
     this.saveError.set(null);
@@ -74,13 +69,14 @@ export class EventForm implements OnInit {
 
     const id = this.id();
     const request = id
-      ? this.eventService.updateEvent(id, event)
-      : this.eventService.addEvent(event);
+      ? this.eventService.updateEvent(id, newEvent)
+      : this.eventService.addEvent(newEvent);
 
     request.subscribe({
-      next: (saved) => {
-        this.snackBar.open(`${event.title} saved`, 'Close', { duration: 5000 });
-        this.router.navigate(['/events', saved._id]);
+      next: (response) => {
+        this.snackBar.open(`${newEvent.title} saved`, 'Close', { duration: 10000 });
+        console.log('Event saved successfully:', response);
+        this.router.navigate(['/events']);
       },
       error: (err: Error) => {
         this.saveError.set(err.message);

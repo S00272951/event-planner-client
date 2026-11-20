@@ -37,11 +37,20 @@
     </select>
   </mat-form-field>
 
-  @if (saveError(); as message) { <p class="error" role="alert">{{ message }}</p> }
+    @if (saveError(); as message) { <p class="error" role="alert">{{ message }}</p> }
   <div class="button-group">
     <button matButton="filled" type="submit" [disabled]="saving()">
       {{ saving() ? 'Saving...' : 'Save guest' }}
     </button>
     <a matButton [routerLink]="['/events', eventId()]">Cancel</a>
+    @if (guestId()) {
+      <button matButton="outlined" type="button" (click)="deleteGuest()" [disabled]="deleting()">
+        Delete
+      </button>
+    }
   </div>
+
+  @if (deleteError(); as message) {
+    <p class="error" role="alert">{{ message }}</p>
+  }
 </form>

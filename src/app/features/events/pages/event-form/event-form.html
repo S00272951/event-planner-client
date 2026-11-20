@@ -51,10 +51,10 @@
   </mat-form-field>
 
   @if (saveError(); as message) { <p class="error" role="alert">{{ message }}</p> }
-  <div class="button-group">
+    <div class="button-group">
     <button matButton="filled" type="submit" [disabled]="saving()">
       {{ saving() ? 'Saving...' : 'Save event' }}
     </button>
-    <a matButton [routerLink]="id() ? ['/events', id()] : ['/events']">Cancel</a>
+    <a matButton routerLink="/events">Cancel</a>
   </div>
 </form>

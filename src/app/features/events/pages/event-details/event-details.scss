@@ -2,8 +2,7 @@
   color: #555;
 }
 
-.actions,
-.filters {
+.actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -38,11 +37,6 @@
   flex: 1;
   min-width: 180px;
   word-break: break-all;
-}
-
-.guest-actions {
-  display: flex;
-  gap: 4px;
 }
 
 .rsvp {

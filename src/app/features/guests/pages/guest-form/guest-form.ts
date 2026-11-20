@@ -36,6 +36,9 @@ export class GuestForm implements OnInit {
   saving = signal(false);
   saveError = signal<string | null>(null);
 
+  readonly deleting = signal(false);
+  readonly deleteError = signal<string | null>(null);
+
   guestForm = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(100), notBlank]],
     email: ['', [Validators.required, Validators.email]],
@@ -57,7 +60,7 @@ export class GuestForm implements OnInit {
     if (this.guestForm.invalid) return;
 
     const { name, email, rsvp } = this.guestForm.getRawValue();
-    const guest: CreateGuestDto = { name: name.trim(), email: email.trim(), rsvp };
+    const newGuest: CreateGuestDto = { name, email, rsvp };
 
     this.saving.set(true);
     this.saveError.set(null);
@@ -65,18 +68,36 @@ export class GuestForm implements OnInit {
 
     const guestId = this.guestId();
     const request = guestId
-      ? this.guestService.updateGuest(guestId, guest)
-      : this.guestService.addGuest(this.eventId(), guest);
+      ? this.guestService.updateGuest(guestId, newGuest)
+      : this.guestService.addGuest(this.eventId(), newGuest);
 
     request.subscribe({
-      next: () => {
-        this.snackBar.open(`${guest.name} saved`, 'Close', { duration: 5000 });
+      next: (response) => {
+        this.snackBar.open(`${newGuest.name} saved`, 'Close', { duration: 10000 });
+        console.log('Guest saved successfully:', response);
         this.router.navigate(['/events', this.eventId()]);
       },
       error: (err: Error) => {
         this.saveError.set(err.message);
         this.saving.set(false);
         this.guestForm.enable();
+      },
+    });
+  }
+
+  deleteGuest(): void {
+    const guestId = this.guestId();
+    if (!guestId) return;
+    if (!confirm('Remove this guest from the event?')) return;
+
+    this.deleting.set(true);
+    this.deleteError.set(null);
+
+    this.guestService.deleteGuest(guestId).subscribe({
+      next: () => this.router.navigate(['/events', this.eventId()]),
+      error: (err: Error) => {
+        this.deleteError.set(err.message);
+        this.deleting.set(false);
       },
     });
   }
